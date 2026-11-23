@@ -5,7 +5,7 @@
 
   // Set this to the deployed Worker URL + /api/visit after backend setup.
   // Empty means disabled; deliberately do NOT fall back to Busuanzi's PV counts.
-  const API_URL = '';
+  const API_URL = 'https://straight-visit-stats.bieji-ai-straight-2026.workers.dev/api/visit';
   const keys = ['page_daily_uv', 'site_daily_uv'];
   let totals = null;
   let status = '统计加载中';
