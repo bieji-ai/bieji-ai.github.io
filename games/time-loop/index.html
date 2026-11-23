@@ -67,7 +67,7 @@ const TRIPS=[
  {from:[180,342],to:[820,148],heading:0,name:'西广场 → 东门',way:[[500,342],[500,148],[820,148]]},
  {from:[820,535],to:[180,148],heading:Math.PI,name:'东南街 → 西门',way:[[180,535],[180,148]]},
  {from:[500,148],to:[500,535],heading:Math.PI/2,name:'北站 → 南站',way:[[500,535]]},
- {from:[180,148],to:[820,535],heading:0,name:'西门 → 东南街',way:[[820,148],[820,535]]}
+ {from:[500,342],to:[820,535],heading:0,name:'中央街区 → 东南街',way:[[820,342],[820,535]]}
 ];
 const LEVELS=[{name:'宁静街区 · 第 1 关',count:5},{name:'繁忙街区 · 第 2 关',count:7},{name:'高峰时刻 · 第 3 关',count:9}];
 const $=id=>document.getElementById(id);
@@ -304,7 +304,7 @@ $('pauseBtn').addEventListener('click',pause);
 $('retryBtn').addEventListener('click',retry);
 $('undoBtn').addEventListener('click',undo);
 $('guideToggle').addEventListener('change',e=>guide=e.target.checked);
-window.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&state==='playing')pause()});
 ready();frameId=requestAnimationFrame(frame);
 })();
 </script>
