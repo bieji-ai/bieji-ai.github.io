@@ -132,37 +132,29 @@ node scripts/sync-fire-siege.mjs '/path/to/烽火破城手机版.html' --mobile
 首页动态按 `group`（缺省按目标 URL）合并，同一作品只展示最新消息；`/updates/` 保存完整记录。桌面端在 1024px 以上使用更小字号、较宽栏目间距与更舒展的阅读行距，样式集中在 `assets/css/desktop.css`；手机搜索保留 16px 输入字号与独立的弹窗布局。
 
 
-### 按 IP 每日去重的访客统计
+### 访问统计：今日去重 + 历史去重
 
-旧版不蒜子仅有 `page_pv`（刷新增加）和 `site_uv`（非每日去重口径），不满足“同一 IP 同一天只计一次”的要求。现已从前端移除不蒜子调用，并实现可单独部署的 Cloudflare Worker + D1 计数服务。**在 Worker 尚未部署时，网页会显示“按日 IP 统计待启用”和横线；不会展示失真的旧数字。** 统计数据从 Worker 启用日开始，原来的累计 PV/UV 不可无损转换成每日独立 IP 数。
+页面顶部、页脚和游戏入口统一显示两个指标，不再显示“今日本页访客”：
 
-- 今日本页访客：同一 IP 在北京时间同一天访问**同一页面**只计一次。
-- 今日全站访客：同一 IP 在北京时间同一天访问**任意页面**只计一次。
-- 第二天两个指标重新计数，不延续上一日的计数。共享公网 IP 的多人会被合并，动态 IP 可能产生重复，故展示为“IP”，不声称是真实人数。
-- 每次请求仅在 Worker 读取 Cloudflare 提供的客户端 IP，以按天加盐的 HMAC-SHA256 生成不可逆标识；D1 唯一键防并发重复计数；不保存原始 IP。Worker 定期清理三天之前的标识。跨源只允许 `https://bieji-ai.github.io`。该计数不是防刷票系统，代理及分布式流量仍可能干扰统计。
+- **今日全站访客（IP）**：同一公网 IP 在北京时间同一天访问任意页面，只计一次；次日重新计算。
+- **历史全站访客（IP）**：从历史统计功能启用日起，同一公网 IP 跨日期访问也只计一次；不等于每日独立 IP 的累加之和。
 
-**启用步骤（需站长自己的 Cloudflare 账号；GitHub Pages 本身不提供后端执行能力）：**
+基于 Cloudflare Worker + D1，后端用密钥保护的 HMAC-SHA256 分别生成每日和跨日期稳定指纹；不保存原始 IP，不再收集每页访问量。D1 通过唯一主键去重，刷新和并发重复请求不会增加访客数。每日指纹约三天后清理；**历史指纹为实现跨日唯一性持续保留，直到站长主动清空或重置统计数据**。尽管不存原始 IP，稳定的哈希仍属于应谨慎管理的可关联标识，不能当作完全匿名数据。共享公网 IP 会合并多个人，动态 IP 会拆分同一个人，所以数字标为 IP 而非真实人数。
+
+**从现有已部署的每日统计版本升级：** 本机需保留已能成功部署的 `scripts/visit-stats-worker/wrangler.toml`（包含真实 D1 database_id），保留原来的 Cloudflare 密钥不变。在仓库根目录执行：
 
 ```bash
+git pull
 cd scripts/visit-stats-worker
-npx wrangler login
-npx wrangler d1 create straight-visit-stats
-# 将命令输出的 database_id 填入 wrangler.toml
 npx wrangler d1 execute straight-visit-stats --remote --file=./schema.sql
-openssl rand -hex 32 | npx wrangler secret put VISITOR_HMAC_SECRET
 npx wrangler deploy
 ```
 
-将 Wrangler 输出的 Worker 地址（如 `https://<your-worker>.workers.dev`）拼接 `/api/visit`，填到 `assets/js/visit-stats.js` 的 `API_URL` 常量中，并提交。**没有可用 Worker URL 时不应填入示例地址。** 修改后刷新网页，同一公网 IP 当天重复访问不再加数，页面跳转只会增加新页面的本页统计，不增加全站统计。游戏入口共用该脚本，也遵循同样规则。
+`schema.sql` 是可重复执行的迁移文件，会创建 `historical_uniques` 表并保留原有 `daily_uniques` 表。**先执行建表，再部署 Worker**，避免历史表不存在导致统计接口故障。网页新版已与旧版 Worker 兼容：历史接口未部署时仍显示真实的今日全站数字，历史数字显示为“—”并提示“历史统计待启用”；升级后两项均可正常显示。原来的 Busuanzi 累计数及按天生成的旧哈希均**无法转成稳定的跨日 IP 指纹**，所以历史统计从新版 Worker 开始记录，不能回填旧访问数据。
 
-代码和数据表分别见 `scripts/visit-stats-worker/index.mjs` 与 `schema.sql`；通过 `node --test scripts/visit-stats.test.mjs scripts/visit-stats-worker/worker.test.mjs` 运行测试。Cloudflare D1 的计费和免费限额请以其官方文档为准。
+`assets/js/visit-stats.js` 共享首页、栏目、文章、游戏与页脚展示；`scripts/visit-stats-worker/index.mjs` 负责后端计数。网络异常时显示“统计暂不可用”，不填假数字；localhost 与本地文件不计数。测试命令：
 
-### 访问统计
+```bash
+node --test scripts/visit-stats.test.mjs scripts/visit-stats-worker/worker.test.mjs
+```
 
-所有使用默认布局的栏目、课程、讲义、文章、面试页与首页，在内容上方显示「本页访问次数」与「全站访客人数」，页脚保留全站访问量。数据由既有不蒜子服务累计，每页每次加载只请求一次；不使用本地存储伪造线上计数，也不把全站 UV 称作某页 UV。旧版不蒜子接口不提供 page_uv，已移除原文章模板中无法工作的该字段。
-
-页面访问按当前 URL 累计，栏目入口的访问次数只表示该入口页，不汇总子页面。全站访客是服务口径的累计 UV，不能解释为真实注册用户数。新增显示不会回填此前未接入页面的历史访问。
-
-`assets/js/visit-stats.js` 同步多个显示位置，处理加载、错误和超时；网络或服务不可用时显示「统计暂不可用」，不显示虚假的 0。localhost / 127.0.0.1 / 本地文件不发送统计。三个独立游戏页在开始界面显示计数，战斗中不占用 HUD；两个游戏同步脚本通过 `scripts/game-visit-stats.mjs` 保留接入，支持站点子路径。
-
-统计规则与游戏同步回归：`node --test scripts/search.test.mjs scripts/visit-stats.test.mjs`。

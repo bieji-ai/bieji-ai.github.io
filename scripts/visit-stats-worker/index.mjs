@@ -14,12 +14,32 @@ export function normalizePage(path) {
   return canonical || '/';
 }
 
-async function visitorHash(ip, date, secret) {
-  const key = await crypto.subtle.importKey(
-    'raw', encoder.encode(secret), {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']
-  );
-  const digest = await crypto.subtle.sign('HMAC', key, encoder.encode('daily-ip-v1|' + date + '|' + ip));
+async function hmacFingerprint(message, key) {
+  const digest = await crypto.subtle.sign('HMAC', key, encoder.encode(message));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+export async function countVisit(env, ip, day) {
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(env.VISITOR_HMAC_SECRET), {name: 'HMAC', hash: 'SHA-256'}, false, ['sign']
+  );
+  const [dailyHash, historicalHash] = await Promise.all([
+    hmacFingerprint('daily-ip-v1|' + day + '|' + ip, key),
+    hmacFingerprint('historical-ip-v1|' + ip, key)
+  ]);
+  // Database uniqueness constraints make refreshes and concurrent requests idempotent.
+  await env.DB.batch([
+    env.DB.prepare('INSERT OR IGNORE INTO daily_uniques (day, scope, page, visitor_hash) VALUES (?, ?, ?, ?)')
+      .bind(day, 'site', '', dailyHash),
+    env.DB.prepare('INSERT OR IGNORE INTO historical_uniques (visitor_hash, first_seen_day) VALUES (?, ?)')
+      .bind(historicalHash, day)
+  ]);
+  const [daily, historical] = await Promise.all([
+    env.DB.prepare('SELECT COUNT(*) AS n FROM daily_uniques WHERE day = ? AND scope = ? AND page = ?')
+      .bind(day, 'site', '').first(),
+    env.DB.prepare('SELECT COUNT(*) AS n FROM historical_uniques').first()
+  ]);
+  return {date: day, site_daily_uv: Number(daily.n), site_total_uv: Number(historical.n)};
 }
 
 function corsHeaders(origin) {
@@ -27,7 +47,7 @@ function corsHeaders(origin) {
     'Cache-Control': 'no-store',
     'Content-Type': 'application/json; charset=utf-8',
     'X-Content-Type-Options': 'nosniff',
-    'Vary': 'Origin',
+    'Vary': 'Origin'
   };
   if (origin === SITE_ORIGIN) {
     headers['Access-Control-Allow-Origin'] = SITE_ORIGIN;
@@ -63,33 +83,18 @@ export default {
     if (raw.length > 1024) return json({error: 'too_large'}, 413, origin);
     let payload;
     try { payload = JSON.parse(raw); } catch { return json({error: 'invalid_json'}, 400, origin); }
-    const page = normalizePage(payload?.path);
-    if (!page) return json({error: 'invalid_page'}, 400, origin);
-
-    const day = chinaDay();
+    // Accept the old frontend's page argument but never save or count per-page visits.
+    if (!normalizePage(payload?.path)) return json({error: 'invalid_page'}, 400, origin);
     try {
-      const visitor = await visitorHash(ip, day, env.VISITOR_HMAC_SECRET);
-      // D1's unique primary key makes two simultaneous refreshes count once.
-      await env.DB.batch([
-        env.DB.prepare('INSERT OR IGNORE INTO daily_uniques (day, scope, page, visitor_hash) VALUES (?, ?, ?, ?)')
-          .bind(day, 'site', '', visitor),
-        env.DB.prepare('INSERT OR IGNORE INTO daily_uniques (day, scope, page, visitor_hash) VALUES (?, ?, ?, ?)')
-          .bind(day, 'page', page, visitor)
-      ]);
-      const [site, currentPage] = await Promise.all([
-        env.DB.prepare('SELECT COUNT(*) AS n FROM daily_uniques WHERE day = ? AND scope = ? AND page = ?')
-          .bind(day, 'site', '').first(),
-        env.DB.prepare('SELECT COUNT(*) AS n FROM daily_uniques WHERE day = ? AND scope = ? AND page = ?')
-          .bind(day, 'page', page).first()
-      ]);
-      return json({date: day, page_daily_uv: Number(currentPage.n), site_daily_uv: Number(site.n)}, 200, origin);
+      return json(await countVisit(env, ip, chinaDay()), 200, origin);
     } catch {
       // Never fabricate a zero when storage fails, and never log the raw IP.
       return json({error: 'storage_unavailable'}, 503, origin);
     }
   },
   async scheduled(event, env) {
-    // Retain daily pseudonyms only briefly; displayed counters are today-only.
+    // Daily identifiers are short-lived. Historical HMACs are deliberately
+    // retained to implement all-time uniqueness until the owner resets the counter.
     const cutoff = chinaDay(event.scheduledTime - 3 * 86400000);
     await env.DB.prepare('DELETE FROM daily_uniques WHERE day < ?').bind(cutoff).run();
   }
