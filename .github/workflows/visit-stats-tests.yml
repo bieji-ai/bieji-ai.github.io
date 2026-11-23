@@ -1,0 +1,19 @@
+name: Visit statistics tests
+on:
+  push:
+    paths:
+      - 'assets/js/visit-stats.js'
+      - 'scripts/visit-stats.test.mjs'
+      - 'scripts/visit-stats-worker/**'
+      - '.github/workflows/visit-stats-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test scripts/visit-stats.test.mjs scripts/visit-stats-worker/worker.test.mjs
