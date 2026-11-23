@@ -16,7 +16,7 @@ function fakeDb() {
           return {
             async run() {
               if (sql.startsWith('INSERT OR IGNORE INTO daily_uniques')) daily.add(JSON.stringify(args));
-              else if (sql.startsWith('INSERT OR IGNORE INTO historical_uniques')) historical.add(JSON.stringify(args));
+              else if (sql.startsWith('INSERT OR IGNORE INTO historical_uniques')) historical.add(args[0]); // primary key is the stable hash, not the first-seen date
               else if (sql.startsWith('DELETE FROM daily_uniques')) {
                 for (const item of daily) if (JSON.parse(item)[0] < args[0]) daily.delete(item);
               } else throw new Error('unexpected SQL: ' + sql);
