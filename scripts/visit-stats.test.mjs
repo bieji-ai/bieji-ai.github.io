@@ -31,7 +31,8 @@ function fixture({endpoint = '', hostname = 'bieji-ai.github.io', pathname = '/a
     if (reply instanceof Error) throw reply;
     return {ok: true, json: async () => reply};
   };
-  const script = source.replace("const API_URL = '';", "const API_URL = " + JSON.stringify(endpoint) + ';');
+  const script = source.replace(/const API_URL = ['"][^'"]*['"];/, "const API_URL = " + JSON.stringify(endpoint) + ';');
+  assert.notEqual(script, source, 'fixture must override the real production endpoint');
   const context = vm.createContext({
     document, window,
     location: {protocol: 'https:', hostname, pathname},
