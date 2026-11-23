@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "小游戏"
-description: "阅读之外，玩一局自己做的小作品。手机版散兵成军，从主将一人出发救援成军；烽火破城，调兵攻城、斩将夺旗。"
+description: "三款可玩的独立小游戏：时间回环、散兵成军、烽火破城。让过去的车辆在30秒里重播，考验驾驶与规划。"
 permalink: /games/
 section: games
 ---
@@ -9,6 +9,51 @@ section: games
   <p class="eyebrow">SIDE QUESTS / PLAY</p>
   <h1 id="games-title">读累了，玩一局。</h1>
   <p class="intro">这里收集自己做的小游戏。把一点想法做成可以按下开始的小作品。</p>
+</section>
+
+<style>
+.time-preview{background:#122c37;display:flex;align-items:center;justify-content:center}
+.time-preview svg{display:block;width:100%;height:100%;min-height:340px;object-fit:cover;transition:transform .3s}
+.time-preview:hover svg{transform:scale(1.025)}
+.time-preview .time-preview-title{position:absolute;left:26px;bottom:24px;color:#f3f9fd;font-size:27px;line-height:1.2;font-weight:850;letter-spacing:.04em;text-shadow:0 2px 12px #000a}
+.time-preview .time-preview-title small{display:block;color:#87e5f0;font-size:10px;letter-spacing:.21em;font-weight:700;margin:0 0 6px}
+@media(max-width:760px){.time-preview svg{min-height:0}.time-preview .time-preview-title{font-size:21px;left:20px;bottom:20px}}
+</style>
+<section class="games-showcase" aria-labelledby="time-loop-title">
+  <article class="featured-game">
+    <a class="game-preview time-preview" href="{{ '/games/time-loop/' | relative_url }}" aria-label="开始玩时间回环：30秒交通时间线">
+      <svg viewBox="0 0 1000 620" role="img" aria-label="深色城市地图，蓝色与粉色汽车在路口交错，金色终点在远方" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <defs><linearGradient id="bgtime" x2="1" y2="1"><stop stop-color="#102a37"/><stop offset="1" stop-color="#071520"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="8"/></filter></defs>
+        <rect width="1000" height="620" fill="url(#bgtime)"/>
+        <g fill="#254252" stroke="#345367" stroke-width="2">
+          <rect x="36" y="32" width="208" height="137" rx="10"/><rect x="325" y="32" width="258" height="137" rx="10"/><rect x="672" y="32" width="270" height="137" rx="10"/>
+          <rect x="36" y="261" width="208" height="123" rx="10"/><rect x="325" y="261" width="258" height="123" rx="10"/><rect x="672" y="261" width="270" height="123" rx="10"/>
+          <rect x="36" y="478" width="208" height="123" rx="10"/><rect x="325" y="478" width="258" height="123" rx="10"/><rect x="672" y="478" width="270" height="123" rx="10"/>
+        </g>
+        <g fill="#1a2939"><path d="M0 186h1000v64H0zM0 399h1000v64H0zM258 0h64v620h-64zM598 0h64v620h-64z"/></g>
+        <g stroke="#536982" stroke-width="2" stroke-dasharray="14 16" opacity=".6"><path d="M0 218h1000M0 431h1000M290 0v620M630 0v620"/></g>
+        <g fill="none" stroke-width="5" stroke-linecap="round"><path d="M100 215H850" stroke="#7fe6f5" opacity=".65"/><path d="M630 540V110" stroke="#ed92cb" opacity=".75"/><path d="M290 545V217H820" stroke="#ffcc7a" stroke-dasharray="12 14" opacity=".7"/></g>
+        <circle cx="800" cy="218" r="33" fill="#ffbc6638"/><circle cx="800" cy="218" r="24" fill="none" stroke="#ffd489" stroke-width="5"/>
+        <g transform="translate(474 218)"><rect x="-28" y="-12" width="56" height="24" rx="8" fill="#7de4ed"/><rect x="-6" y="-9" width="18" height="18" rx="4" fill="#244859"/></g>
+        <g transform="translate(630 341) rotate(-90)"><rect x="-28" y="-12" width="56" height="24" rx="8" fill="#f49ac8"/><rect x="-6" y="-9" width="18" height="18" rx="4" fill="#3a3653"/></g>
+        <g transform="translate(290 429)"><rect x="-28" y="-12" width="56" height="24" rx="8" fill="#fff0a6"/><rect x="-6" y="-9" width="18" height="18" rx="4" fill="#615d43"/></g>
+        <rect width="1000" height="620" fill="#06131c" opacity=".18"/>
+        <text x="35" y="575" fill="#5ca0b5" opacity=".28" font-family="sans-serif" font-size="115" font-weight="900">00:30</text>
+      </svg>
+      <span class="game-preview-badge">新作 · 轨迹重播 · 电脑 / 手机</span>
+      <span class="time-preview-title"><small>TIMELOOP CITY</small>时间回环</span>
+      <span class="game-preview-play" aria-hidden="true">↗</span>
+    </a>
+    <div class="game-copy">
+      <p class="section-kicker">NEW / TIMELOOP CITY</p>
+      <h2 id="time-loop-title">时间回环</h2>
+      <p class="game-tagline">和过去的自己，争夺同一条路。</p>
+      <p class="game-description">每一辆车都在相同的 30 秒里从起点驶向终点。成功的车辆会按原路线、原时间自动重播；你驾驶下一辆时，必须避开前面所有的自己。街道越来越繁忙，一次转弯便能改变整座城市的命运。</p>
+      <ul class="game-tags" aria-label="游戏特点"><li>30秒时间循环</li><li>历史车辆重播</li><li>路线与时机策略</li></ul>
+      <div class="game-platforms"><a class="button-primary" href="{{ '/games/time-loop/' | relative_url }}">开始驾驶 <span aria-hidden="true">↗</span></a></div>
+      <p class="game-device-note">电脑方向键 / WASD · 手机触控转向 · 可撤销上一辆重新规划</p>
+    </div>
+  </article>
 </section>
 
 <section class="games-showcase" aria-labelledby="rally-army-title">
