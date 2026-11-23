@@ -24,7 +24,7 @@ button,a{font:inherit}button{cursor:pointer}button:disabled{opacity:.36;cursor:n
 .map-caption{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;font-size:12px;color:#9bb1c8;border-top:1px solid #293a4b}.legend{display:flex;gap:13px;flex-wrap:wrap}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px}.legend .me{background:#fff3a1}.legend .old{background:#6bdef0}.legend .goal{background:#ffbd72}
 .side{display:flex;flex-direction:column;gap:14px}.side-card{border:1px solid #304259;background:#131f31;border-radius:18px;padding:20px}.side-head{font-size:11px;letter-spacing:.2em;color:#80a9bf;font-weight:800;margin:0 0 13px}.task-label{color:#bed4e7;font-size:12px}.task-route{font-weight:800;font-size:21px;line-height:1.4;margin:7px 0 12px}.task-route b{color:var(--yellow)}.trip-line{height:6px;background:#2a3c51;border-radius:20px;overflow:hidden}.trip-line>div{height:100%;background:#6ce3ef;width:0;transition:width .15s}
 .stats{display:flex;justify-content:space-between;margin-top:16px;gap:12px}.stat strong{font-size:23px;display:block;line-height:1.2;font-variant-numeric:tabular-nums}.stat span{font-size:11px;color:#92a6bf}.stat+.stat{text-align:right}
-.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:5px 0 12px}.ctrl{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #476078;background:#20334a;color:#f0f8ff;border-radius:13px;min-height:68px;touch-action:none;user-select:none;-webkit-user-select:none}.ctrl:active,.ctrl.pressed{background:#33718b;border-color:#78d8eb;transform:translateY(1px)}.ctrl strong{font-size:24px;line-height:1.1}.ctrl span{font-size:11px;color:#a8c9da;margin-top:4px}.pedals{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pedals .ctrl{min-height:54px}.pedals .ctrl strong{font-size:14px}.side-tip{font-size:12px;line-height:1.75;color:#9fb3c7;margin:12px 0 0}.side-tip kbd{border:1px solid #45586f;border-radius:4px;padding:1px 5px;font:inherit;color:#cbdde9}
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:5px 0 9px}.ctrl.selected{background:#346785;border-color:#77e3ed;box-shadow:inset 0 0 0 1px #6dd8e966}.drive-hint{font-size:12px;line-height:1.6;color:#c2ecf4;background:#1b3143;border:1px solid #36576b;border-radius:9px;padding:8px 10px;margin-bottom:11px;min-height:37px}.ctrl{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid #476078;background:#20334a;color:#f0f8ff;border-radius:13px;min-height:68px;touch-action:none;user-select:none;-webkit-user-select:none}.ctrl:active,.ctrl.pressed{background:#33718b;border-color:#78d8eb;transform:translateY(1px)}.ctrl strong{font-size:24px;line-height:1.1}.ctrl span{font-size:10px;color:#a8c9da;margin-top:4px}.pedals{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.pedals .ctrl{min-height:54px}.pedals .ctrl strong{font-size:14px}.side-tip{font-size:12px;line-height:1.75;color:#9fb3c7;margin:12px 0 0}.side-tip kbd{border:1px solid #45586f;border-radius:4px;padding:1px 5px;font:inherit;color:#cbdde9}
 .actions{display:flex;gap:8px;margin-top:14px}.actions button{flex:1;white-space:nowrap}.switch{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#bccfe1;gap:10px;margin-top:13px}.switch input{accent-color:#69dbec;width:16px;height:16px}
 .note{font-size:12px;color:#91a8bf;line-height:1.8;margin:19px 2px 0}.note strong{color:#d8e9f7}
 @media(max-width:990px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr;align-items:start}.side-card{height:100%}.hero-mark{display:none}}
@@ -43,44 +43,56 @@ button,a{font:inherit}button{cursor:pointer}button:disabled{opacity:.36;cursor:n
 <section class="game-panel" aria-label="时间回环游戏">
 <div class="game-hud"><div><div class="hud-title"><span class="live-dot"></span><span id="levelName">宁静街区 · 第 1 关</span></div><div id="roundLabel" class="hud-sub">第 1 辆车 · 准备出发</div></div><div id="clock" class="time">00:00<span style="color:#718ba2;font-size:13px"> / 00:30</span></div></div>
 <div class="progress"><div id="timeProgress"></div></div>
-<div class="map-wrap"><canvas id="game" width="1000" height="620" role="img" aria-label="俯视城市交通地图，浅黄色车辆为当前驾驶车辆，彩色车辆为过去轨迹"></canvas><div class="map-overlay" id="overlay"><div class="modal" role="status" aria-live="polite"><div id="modalSymbol" class="symbol">⏱</div><h2 id="modalTitle">准备好改写交通了吗？</h2><p id="modalText">用 <span class="accent">← →</span> 或屏幕按钮控制转向，车辆会自动前进。按住刹车转弯更稳。每次成功送达，旧车就会在下一轮重播。</p><div class="modal-actions" id="modalActions"><button class="primary" id="mainAction" type="button">开始驾驶 →</button><button class="secondary" id="secondAction" type="button" hidden>撤销上一辆</button></div></div></div></div>
+<div class="map-wrap"><canvas id="game" width="1000" height="620" role="img" aria-label="俯视城市交通地图，浅黄色车辆为当前驾驶车辆，彩色车辆为过去轨迹"></canvas><div class="map-overlay" id="overlay"><div class="modal" role="status" aria-live="polite"><div id="modalSymbol" class="symbol">⏱</div><h2 id="modalTitle">准备好改写交通了吗？</h2><p id="modalText">提前点击一次左转、直行或右转，车会在<span class="accent">下一个十字路口自动转向</span>。不用一直按方向键，30秒里只需选择路线和时机。</p><div class="modal-actions" id="modalActions"><button class="primary" id="mainAction" type="button">开始驾驶 →</button><button class="secondary" id="secondAction" type="button" hidden>撤销上一辆</button></div></div></div></div>
 <div class="map-caption"><span>沿道路驾驶，驶入 <b style="color:#ffc77a">橙色目的地</b></span><div class="legend"><span><i class="me"></i>当前</span><span><i class="old"></i>回放</span><span><i class="goal"></i>终点</span></div></div>
 </section>
 <aside class="side">
 <section class="side-card"><p class="side-head">CURRENT MISSION / 当前任务</p><div class="task-label" id="tripId">第 01 趟 / 共 05 趟</div><div class="task-route" id="tripTitle">西门 <b>→</b> 东门</div><div class="trip-line"><div id="tripProgress"></div></div><div class="stats"><div class="stat"><strong id="carsDone">0</strong><span>已成功送达</span></div><div class="stat"><strong id="best">—</strong><span>当前最佳记录</span></div></div></section>
-<section class="side-card"><p class="side-head">DRIVE / 驾驶操作</p><div class="controls"><button class="ctrl" type="button" data-control="left" aria-label="向左转"><strong>↶</strong><span>左转</span></button><button class="ctrl" type="button" data-control="brake" aria-label="减速"><strong>Ⅱ</strong><span>刹车</span></button><button class="ctrl" type="button" data-control="right" aria-label="向右转"><strong>↷</strong><span>右转</span></button></div><div class="pedals"><button class="ctrl" type="button" data-control="boost" aria-label="加速"><strong>⚡ 加速</strong><span>按住提速</span></button><button class="ctrl" type="button" id="pauseBtn"><strong>Ⅱ 暂停</strong><span>空格键</span></button></div><p class="side-tip">键盘 <kbd>←</kbd> <kbd>→</kbd> / <kbd>A</kbd> <kbd>D</kbd> 转向，<kbd>↓</kbd> / <kbd>S</kbd> 刹车，<kbd>↑</kbd> / <kbd>W</kbd> 加速。转弯时建议刹车。</p><div class="actions"><button class="secondary" id="retryBtn" type="button">重试本车</button><button class="secondary" id="undoBtn" type="button">撤销上一辆</button></div><label class="switch">显示路线参考线 <input id="guideToggle" type="checkbox" checked></label></section>
+<section class="side-card"><p class="side-head">DRIVE / 驾驶操作</p><div class="controls"><button class="ctrl" type="button" data-turn="-1"><strong>↶</strong><span>下个路口左转</span></button><button class="ctrl" type="button" data-turn="0"><strong>↑</strong><span>下个路口直行</span></button><button class="ctrl" type="button" data-turn="1"><strong>↷</strong><span>下个路口右转</span></button></div>
+<div class="drive-hint" id="driveHint" aria-live="polite">下一路口：直行</div>
+<div class="pedals"><button class="ctrl" type="button" id="slowBtn"><strong>− 减速</strong><span>观察路况</span></button><button class="ctrl" type="button" id="fastBtn"><strong>＋ 加速</strong><span id="speedReadout">车速 · 标准</span></button><button class="ctrl" type="button" id="pauseBtn"><strong>Ⅱ 暂停</strong><span>空格键</span></button></div>
+<p class="side-tip">无需一直按键：<strong>点一次方向</strong>，车会在下一个十字路口自动转弯。<kbd>←</kbd>/<kbd>A</kbd> 左转，<kbd>↑</kbd>/<kbd>W</kbd> 直行，<kbd>→</kbd>/<kbd>D</kbd> 右转。减速能更从容地观察交通。</p><div class="actions"><button class="secondary" id="retryBtn" type="button">重试本车</button><button class="secondary" id="undoBtn" type="button">撤销上一辆</button></div><label class="switch">显示路线参考线 <input id="guideToggle" type="checkbox" checked></label></section>
 </aside>
 </div>
-<p class="note"><strong>规则：</strong>每趟都是同一时间轴 00:00—00:30。成功车辆的轨迹与用时会精确记录并重放；撞上旧车、开出道路太久或超时，本趟就要重试。你可以随时撤销上一条轨迹，重新规划整座城市。游戏自动保存已通关的最高关卡。</p>
+<p class="note"><strong>规则：</strong>每趟固定 30 秒。玩家提前选择下个路口左转、直行或右转，车辆自动保持在道路中央。部分路线有必须经过的蓝色中途站。旧车轨迹按时间精确重播；撞车或超时可以重试本车、撤销上一辆。</p>
 </main>
 <script>
 (function(){
 'use strict';
-const W=1000,H=620,ROAD=94,X=[180,500,820],Y=[148,342,535],MAX_TIME=30;
+const W=1000,H=620,ROAD=76,X=[130,375,625,870],Y=[104,246,390,535],MAX_TIME=30;
 const COLORS=['#76e1f1','#ed97c8','#a99aff','#f6b76b','#89d5ac','#ff8f90','#a6c9fa','#d9cf88','#dca9ff'];
 const TRIPS=[
- {from:[180,148],to:[820,148],heading:0,name:'西门 → 东门',way:[[820,148]]},
- {from:[500,535],to:[500,148],heading:-Math.PI/2,name:'南站 → 北站',way:[[500,148]]},
- {from:[820,342],to:[180,342],heading:Math.PI,name:'东广场 → 西广场',way:[[180,342]]},
- {from:[180,535],to:[820,535],heading:0,name:'西南街 → 东南街',way:[[820,535]]},
- {from:[820,148],to:[820,535],heading:Math.PI/2,name:'东北站 → 东南站',way:[[820,535]]},
- {from:[180,342],to:[820,148],heading:0,name:'西广场 → 东门',way:[[500,342],[500,148],[820,148]]},
- {from:[820,535],to:[180,148],heading:Math.PI,name:'东南街 → 西门',way:[[180,535],[180,148]]},
- {from:[500,148],to:[500,535],heading:Math.PI/2,name:'北站 → 南站',way:[[500,535]]},
- {from:[500,342],to:[820,535],heading:0,name:'中央街区 → 东南街',way:[[820,342],[820,535]]}
+ {from:[50,104],to:[870,104],dir:0,name:'西门 → 北城车站',way:[[130,104],[375,104],[625,104],[870,104]],stops:[]},
+ {from:[375,47],to:[375,535],dir:1,name:'山顶医院 → 南城站',way:[[375,104],[375,246],[375,390],[375,535]],stops:[]},
+ {from:[950,246],to:[130,390],dir:2,name:'东市集 → 西区公园',way:[[625,246],[375,246],[375,390],[130,390]],stops:[[375,246]]},
+ {from:[130,574],to:[625,390],dir:3,name:'南郊学校 → 科技馆',way:[[130,535],[130,390],[375,390],[625,390]],stops:[[130,390]]},
+ {from:[870,47],to:[625,535],dir:1,name:'东山公园 → 新港',way:[[870,104],[870,246],[625,246],[625,390],[625,535]],stops:[[625,246]]},
+ {from:[625,576],to:[130,246],dir:3,name:'南岸小镇 → 西市集',way:[[625,535],[625,390],[625,246],[375,246],[130,246]],stops:[[625,246]]},
+ {from:[50,390],to:[870,535],dir:0,name:'西区公园 → 东港码头',way:[[130,390],[375,390],[625,390],[625,535],[870,535]],stops:[[625,390]]},
+ {from:[950,535],to:[375,104],dir:2,name:'东港码头 → 山顶医院',way:[[870,535],[625,535],[375,535],[375,390],[375,246],[375,104]],stops:[[375,535]]},
+ {from:[375,46],to:[870,390],dir:1,name:'山顶医院 → 东城体育场',way:[[375,104],[375,246],[375,390],[625,390],[870,390]],stops:[[375,390]]}
 ];
 const LEVELS=[{name:'宁静街区 · 第 1 关',count:5},{name:'繁忙街区 · 第 2 关',count:7},{name:'高峰时刻 · 第 3 关',count:9}];
 const $=id=>document.getElementById(id);
 const canvas=$('game'),ctx=canvas.getContext('2d');
 if(!ctx){$('modalTitle').textContent='当前浏览器不支持 Canvas';$('mainAction').disabled=true;return;}
-const keys={left:false,right:false,brake:false,boost:false};
+const SPEEDS=[56,76,96];let speedIndex=1,queuedTurn=0;
 let level=0,history=[],current=null,trace=[],elapsed=0,state='ready',offRoad=0,clockStamp=0,crashAt=null,guide=true,particles=[],frameId=0;
 try{level=Math.min(LEVELS.length-1,Math.max(0,Number(localStorage.getItem('timeLoopUnlocked')||0)))}catch(e){}
 let best='—';try{best=localStorage.getItem('timeLoopBest')||'—'}catch(e){}
 $('best').textContent=best;
 function roundTrip(){return TRIPS[history.length]}
 function format(t){return '00:'+String(Math.min(30,Math.floor(t))).padStart(2,'0')}
-function clearKeys(){Object.keys(keys).forEach(k=>keys[k]=false);document.querySelectorAll('[data-control]').forEach(el=>el.classList.remove('pressed'))}
+function clearKeys(){queuedTurn=0;updateTurnUI()}
+function updateTurnUI(){
+ document.querySelectorAll('[data-turn]').forEach(el=>el.classList.toggle('selected',Number(el.dataset.turn)===queuedTurn));
+ const j=current?nextJunction(current):null,what=['左转','直行','右转'][queuedTurn+1];
+ const dist=j?Math.round(Math.hypot(j.x-current.x,j.y-current.y)):0;
+ $('driveHint').textContent=j?'距离下个路口 '+dist+' 米 · '+what:'前方已无路口 · 注意地图边缘';
+ $('speedReadout').textContent='车速 · '+['缓慢','标准','快速'][speedIndex];
+}
+function chooseTurn(dir){if(state!=='playing'&&state!=='ready')return;queuedTurn=dir;updateTurnUI()}
+function setSpeed(delta){speedIndex=Math.max(0,Math.min(2,speedIndex+delta));updateTurnUI()}
 function updateUI(){
  const mission=roundTrip(),n=LEVELS[level].count;
  $('levelName').textContent=LEVELS[level].name;
@@ -91,6 +103,7 @@ function updateUI(){
  $('tripTitle').innerHTML=mission?mission.name.replace(' → ',' <b>→</b> '):'全城顺利抵达';
  $('tripProgress').style.width=history.length/n*100+'%';
  $('carsDone').textContent=history.length;
+ if(current)updateTurnUI();
  $('undoBtn').disabled=history.length===0||state==='playing';
  $('retryBtn').disabled=state==='playing'||state==='won';
  $('pauseBtn').disabled=state!=='playing'&&state!=='paused';
@@ -106,7 +119,7 @@ function modal(symbol,title,body,action,onAction,secondary,secondaryAction){
 function closeModal(){$('overlay').hidden=true}
 function resetTrip(){
  const trip=roundTrip();if(!trip)return;
- current={x:trip.from[0],y:trip.from[1],a:trip.heading,speed:0};trace=[{t:0,x:current.x,y:current.y,a:current.a}];
+ current={x:trip.from[0],y:trip.from[1],dir:trip.dir,a:trip.dir*Math.PI/2,speed:0,stopIndex:0};trace=[{t:0,x:current.x,y:current.y,a:current.a}];speedIndex=1;queuedTurn=0;
  elapsed=0;offRoad=0;crashAt=null;particles=[];clearKeys();
 }
 function begin(){
@@ -116,7 +129,7 @@ function resume(){if(state!=='paused')return;state='playing';closeModal();clockS
 function pause(){if(state==='playing'){state='paused';clearKeys();modal('Ⅱ','已暂停','所有时间线都停在了这一刻。','继续驾驶 →',resume,'重新开始本车',retry)}else if(state==='paused')resume();updateUI()}
 function ready(){
  state='ready';resetTrip();updateUI();
- modal('⏱','把时间开成一条路','驾驶浅黄色的车驶向<span class="accent">橙色终点</span>。下一辆车开始时，之前的车辆会按完全相同的时间与路线重演。<br>手机长按方向键，电脑用方向键或 WASD。','开始驾驶 →',begin,history.length?'撤销上一辆':null,undo);
+ modal('⏱','转弯变简单了','车辆<span class="accent">自动沿道路前进</span>。提前点一次左转、直行或右转，在<strong>下个路口</strong>执行。<br>蓝色途经点需先经过，橙色是终点；必要时减速观察。','开始驾驶 →',begin,history.length?'撤销上一辆':null,undo);
 }
 function retry(){if(state==='won')return;ready()}
 function undo(){
@@ -144,7 +157,21 @@ function lose(reason){
  state='failed';clearKeys();crashAt={x:current.x,y:current.y,t:performance.now()};updateUI();
  modal('⚠','这条时间线撞坏了',reason+'<br>之前成功的 '+history.length+' 辆车都会保留。你可以重试本车，或者撤销上一辆调整路线。','重试本车 →',ready,history.length?'撤销上一辆':null,undo);
 }
-function isRoad(x,y){return X.some(a=>Math.abs(x-a)<ROAD/2-5)||Y.some(a=>Math.abs(y-a)<ROAD/2-5)}
+function nextJunction(p){
+ const horizontal=p.dir%2===0,arr=horizontal?X:Y,coord=horizontal?p.x:p.y,sign=(p.dir===0||p.dir===1)?1:-1;
+ let next=null;for(const a of arr){const d=(a-coord)*sign;if(d>.01&&(!next||d<next.d))next={d,x:horizontal?a:p.x,y:horizontal?p.y:a}}
+ return next;
+}
+function destination(){const trip=roundTrip();if(!trip)return null;return current.stopIndex<trip.stops.length?trip.stops[current.stopIndex]:trip.to}
+function drive(distance){
+ let remaining=distance,safety=0;
+ while(remaining>.0001&&safety++<8){
+  const j=nextJunction(current),d=j?j.d:Infinity;
+  if(remaining<d){current.x+=Math.cos(current.a)*remaining;current.y+=Math.sin(current.a)*remaining;break}
+  current.x=j.x;current.y=j.y;remaining-=d;
+  current.dir=(current.dir+queuedTurn+4)%4;current.a=current.dir*Math.PI/2;queuedTurn=0;
+ }
+}
 function ghostAt(path,t){
  const arr=path.trace;if(t>path.duration||arr.length===0)return null;
  let lo=0,hi=arr.length-1;while(lo<hi){const mid=(lo+hi+1)>>1;if(arr[mid].t<=t)lo=mid;else hi=mid-1}
@@ -153,22 +180,17 @@ function ghostAt(path,t){
  return{x:a.x+(b.x-a.x)*v,y:a.y+(b.y-a.y)*v,a:a.a+diff*v};
 }
 function tick(dt){
- if(state!=='playing')return;
- elapsed+=dt;
- let steer=Number(keys.right)-Number(keys.left);
- let target=keys.brake?58:keys.boost?187:133;
- if(!isRoad(current.x,current.y)){target*=.48;offRoad+=dt}else offRoad=Math.max(0,offRoad-dt*2.2);
- current.speed+=Math.max(-260*dt,Math.min(230*dt,target-current.speed));
- current.a+=steer*2.68*dt*(.55+.45*Math.min(current.speed/130,1));
- current.x+=Math.cos(current.a)*current.speed*dt;
- current.y+=Math.sin(current.a)*current.speed*dt;
+ if(state!=='playing')return;elapsed+=dt;
+ current.speed+=Math.max(-160*dt,Math.min(160*dt,SPEEDS[speedIndex]-current.speed));drive(current.speed*dt);
  if(elapsed-trace[trace.length-1].t>=.025)trace.push({t:elapsed,x:current.x,y:current.y,a:current.a});
- if(current.x<18||current.x>W-18||current.y<18||current.y>H-18){lose('驶出了地图边界。');return}
- if(offRoad>1.35){lose('离开道路太久，车辆陷在了街区里。');return}
- for(const ghost of history){const p=ghostAt(ghost,elapsed);if(p&&Math.hypot(current.x-p.x,current.y-p.y)<25){lose('你撞上了过去的自己！试着换路线，或者调整经过路口的时间。');return}}
- const trip=roundTrip();
- if(trip&&Math.hypot(current.x-trip.to[0],current.y-trip.to[1])<31){finish();return}
- if(elapsed>=MAX_TIME)lose('30 秒已经用完，车辆还没到终点。');
+ if(current.x<18||current.x>W-18||current.y<18||current.y>H-18){lose('驶出了城市边缘。记得提前在路口转向。');return}
+ for(const ghost of history){const p=ghostAt(ghost,elapsed);if(p&&Math.hypot(current.x-p.x,current.y-p.y)<24){lose('撞上过去的车辆！可以换路线，或改变经过路口的时间。');return}}
+ const point=destination(),trip=roundTrip();
+ if(trip&&point&&Math.hypot(current.x-point[0],current.y-point[1])<25){
+  if(current.stopIndex<trip.stops.length)current.stopIndex++;
+  else{finish();return}
+ }
+ if(elapsed>=MAX_TIME)lose('30 秒已用完，可以加速或尝试短一点的路线。');
 }
 function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
 function line(points,color,width,dash){
@@ -191,46 +213,31 @@ function trees(x,y,n,vertical){
  ctx.fillStyle='#4f9170';ctx.beginPath();ctx.arc(px-2,py-2,5,0,Math.PI*2);ctx.fill();
  }}
 function paintCity(){
- ctx.fillStyle='#112b31';ctx.fillRect(0,0,W,H);
- // Blocks between continuous roads: no images or external assets.
- const xs=[0,227,547,867,1000],ys=[0,195,389,582,620];
- let id=0;
- for(let j=0;j<ys.length-1;j++)for(let i=0;i<xs.length-1;i++){
-  const x=xs[i]+9,y=ys[j]+9,w=xs[i+1]-xs[i]-18,h=ys[j+1]-ys[j]-18;
-  if(i===3&&j===0){trees(x+27,y+31,3,true);continue}
-  if(i===0&&j===2){trees(x+29,y+27,4,false);continue}
-  if(w>40&&h>45)building(x,y,w,h,id++);
+ ctx.fillStyle='#11303a';ctx.fillRect(0,0,W,H);
+ const bx=[[0,X[0]-ROAD/2],...X.slice(0,-1).map((x,i)=>[x+ROAD/2,X[i+1]-ROAD/2]),[X[X.length-1]+ROAD/2,W]];
+ const by=[[0,Y[0]-ROAD/2],...Y.slice(0,-1).map((y,i)=>[y+ROAD/2,Y[i+1]-ROAD/2]),[Y[Y.length-1]+ROAD/2,H]];
+ for(let j=0;j<by.length;j++)for(let i=0;i<bx.length;i++){
+  const x=bx[i][0]+7,y=by[j][0]+6,w=bx[i][1]-bx[i][0]-14,h=by[j][1]-by[j][0]-12;
+  if(w<28||h<22)continue;const park=(i===0&&j===2)||(i===3&&j===3)||(i===4&&j===0)||(i===2&&j===1);
+  if(park){ctx.fillStyle='#264f4e';rr(x,y,w,h,9);ctx.fill();ctx.strokeStyle='#5f856d';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+9,y+h*.5);ctx.lineTo(x+w-9,y+h*.5);ctx.stroke();
+   for(let k=0;k<Math.min(6,Math.floor(w/23));k++)trees(x+16+k*24,y+Math.min(h-13,16+(k%2)*17),1,false);
+  }else{ctx.fillStyle='#203842';rr(x,y,w,h,8);ctx.fill();
+   if(w>112){const half=(w-12)/2;building(x+3,y+3,half-5,h-6,i+j*5);building(x+half+5,y+3,half-8,h-6,i+j*5+11)}
+   else building(x+3,y+3,w-6,h-6,i+j*5)}
  }
- // Road ground
- ctx.fillStyle='#1a2735';
- for(const x of X)ctx.fillRect(x-ROAD/2,0,ROAD,H);
- for(const y of Y)ctx.fillRect(0,y-ROAD/2,W,ROAD);
- // Curbs
- ctx.fillStyle='#526374';
- for(const x of X){ctx.fillRect(x-ROAD/2,0,2,H);ctx.fillRect(x+ROAD/2-2,0,2,H)}
- for(const y of Y){ctx.fillRect(0,y-ROAD/2,W,2);ctx.fillRect(0,y+ROAD/2-2,W,2)}
- // Dashed centre lines between crossings
- ctx.strokeStyle='#516379';ctx.lineWidth=2;ctx.setLineDash([17,17]);
- for(const x of X){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
- for(const y of Y){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
- ctx.setLineDash([]);
+ ctx.fillStyle='#1b2b3d';for(const x of X)ctx.fillRect(x-ROAD/2,0,ROAD,H);for(const y of Y)ctx.fillRect(0,y-ROAD/2,W,ROAD);
+ ctx.fillStyle='#516578';for(const x of X){ctx.fillRect(x-ROAD/2,0,2,H);ctx.fillRect(x+ROAD/2-2,0,2,H)}for(const y of Y){ctx.fillRect(0,y-ROAD/2,W,2);ctx.fillRect(0,y+ROAD/2-2,W,2)}
+ ctx.strokeStyle='#53677d';ctx.lineWidth=2;ctx.setLineDash([13,18]);
+ for(const x of X){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}for(const y of Y){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}ctx.setLineDash([]);
  for(const x of X)for(const y of Y){
-  ctx.fillStyle='#1a2735';ctx.fillRect(x-ROAD/2+3,y-ROAD/2+3,ROAD-6,ROAD-6);
-  ctx.fillStyle='#526e82';
-  for(let i=-3;i<=3;i++){
-   ctx.globalAlpha=.32;ctx.fillRect(x-ROAD/2+5+i*11,y-ROAD/2+11,6,3);
-   ctx.fillRect(x-ROAD/2+5+i*11,y+ROAD/2-14,6,3);ctx.globalAlpha=1;
-  }
-  // Small intersection signal
-  ctx.fillStyle='#e6ad6b';ctx.beginPath();ctx.arc(x-ROAD/2+8,y-ROAD/2+8,3,0,7);ctx.fill();
+  ctx.fillStyle='#1b2b3d';ctx.fillRect(x-ROAD/2+2,y-ROAD/2+2,ROAD-4,ROAD-4);ctx.globalAlpha=.42;ctx.fillStyle='#88a3b0';
+  for(let z=0;z<5;z++){ctx.fillRect(x-ROAD/2+7+z*12,y-ROAD/2+7,7,3);ctx.fillRect(x-ROAD/2+7+z*12,y+ROAD/2-10,7,3)}ctx.globalAlpha=1;
+  ctx.fillStyle='#f0b369';ctx.beginPath();ctx.arc(x-ROAD/2+7,y-ROAD/2+7,3.2,0,7);ctx.fill();
  }
- // Label some districts without interfering with roads
- ctx.fillStyle='#7690a0';ctx.font='bold 13px system-ui';ctx.textAlign='center';
- ctx.fillText('NORTH / 北城',340,61);ctx.fillText('CENTRAL / 中央街区',665,263);ctx.fillText('SOUTH / 南城',337,452);
- ctx.textAlign='left';
- // Outer subtle vignette
- const g=ctx.createRadialGradient(W*.5,H*.5,130,W*.5,H*.5,650);
- g.addColorStop(0,'#00000000');g.addColorStop(1,'#04070c85');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#a4c5cf';
+ ctx.fillText('▲ 北城车站',745,52);ctx.fillText('✚ 医院',500,52);ctx.fillText('✿ 公园',50,329);ctx.fillText('✦ 科技馆',745,332);ctx.fillText('◈ 市集',750,194);ctx.fillText('⚓ 新港',740,482);ctx.textAlign='left';
+ for(let i=0;i<8;i++){let x=X[i%4]+(i%2?-22:22),y=[175,317,463,597][i%4];ctx.fillStyle=['#597f8c','#856c8b','#8b806b'][i%3];rr(x-5,y-10,10,20,3);ctx.fill()}
+ const g=ctx.createRadialGradient(500,300,90,500,300,690);g.addColorStop(0,'#00000000');g.addColorStop(1,'#0513227c');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
 }
 function drawTrail(path,color,alpha){
  if(!path||path.length<2)return;
@@ -274,6 +281,8 @@ function draw(now){
  for(let i=0;i<history.length;i++)drawTrail(history[i].trace,history[i].color,.28);
  if(state==='playing'||state==='failed'||state==='paused')drawTrail(trace,'#ffe69a',.45);
  goalMarker(trip,now/1000);
+ if(trip&&current&&current.stopIndex<trip.stops.length){const stop=trip.stops[current.stopIndex];ctx.save();ctx.strokeStyle='#80e4f2';ctx.lineWidth=3;ctx.shadowColor='#80e4f2';ctx.shadowBlur=13;ctx.beginPath();ctx.arc(stop[0],stop[1],21,0,7);ctx.stroke();ctx.fillStyle='#cffaff';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.fillText('必经站',stop[0],stop[1]-30);ctx.restore()}
+ if(current&&state==='playing'){const j=nextJunction(current);if(j){ctx.save();ctx.strokeStyle='#96eeed';ctx.lineWidth=3;ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(j.x,j.y,20,0,7);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#d0fcff';ctx.font='bold 20px system-ui';ctx.textAlign='center';ctx.fillText(['↶','↑','↷'][queuedTurn+1],j.x,j.y-28);ctx.restore()}}
  for(let i=0;i<history.length;i++)drawCar(ghostAt(history[i],t),history[i].color,String(i+1),true);
  if(current&&state!=='won')drawCar(current,'#fff09e','',false);
  if(trip){ctx.fillStyle='#d1e6f7';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText('出发',trip.from[0],trip.from[1]-29)}
@@ -286,20 +295,17 @@ function frame(now){
  if(state==='playing')updateUI();
  frameId=requestAnimationFrame(frame);
 }
-const keyMap={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowDown:'brake',KeyS:'brake',ArrowUp:'boost',KeyW:'boost'};
+const keyMap={ArrowLeft:-1,KeyA:-1,ArrowUp:0,KeyW:0,ArrowRight:1,KeyD:1};
 window.addEventListener('keydown',e=>{
- if(keyMap[e.code]){e.preventDefault();if(state==='playing')keys[keyMap[e.code]]=true}
+ if(Object.prototype.hasOwnProperty.call(keyMap,e.code)){e.preventDefault();if(!e.repeat)chooseTurn(keyMap[e.code])}
+ if(e.code==='ArrowDown'||e.code==='KeyS'||e.code==='Minus'){e.preventDefault();if(!e.repeat)setSpeed(-1)}
+ if(e.code==='Equal'||e.code==='NumpadAdd'){e.preventDefault();if(!e.repeat)setSpeed(1)}
  if(e.code==='Space'){e.preventDefault();if(!e.repeat)pause()}
  if(e.code==='KeyR'&&!e.repeat){e.preventDefault();retry()}
 });
-window.addEventListener('keyup',e=>{if(keyMap[e.code]){e.preventDefault();keys[keyMap[e.code]]=false}});
-window.addEventListener('blur',()=>{clearKeys();if(state==='playing')pause()});
-document.querySelectorAll('[data-control]').forEach(btn=>{
- const key=btn.dataset.control;
- btn.addEventListener('pointerdown',e=>{e.preventDefault();if(state!=='playing')return;btn.setPointerCapture(e.pointerId);keys[key]=true;btn.classList.add('pressed')});
- function release(){keys[key]=false;btn.classList.remove('pressed')}
- btn.addEventListener('pointerup',release);btn.addEventListener('pointercancel',release);btn.addEventListener('lostpointercapture',release);
-});
+window.addEventListener('blur',()=>{if(state==='playing')pause()});
+document.querySelectorAll('[data-turn]').forEach(btn=>btn.addEventListener('click',()=>chooseTurn(Number(btn.dataset.turn))));
+$('slowBtn').addEventListener('click',()=>setSpeed(-1));$('fastBtn').addEventListener('click',()=>setSpeed(1));
 $('pauseBtn').addEventListener('click',pause);
 $('retryBtn').addEventListener('click',retry);
 $('undoBtn').addEventListener('click',undo);
