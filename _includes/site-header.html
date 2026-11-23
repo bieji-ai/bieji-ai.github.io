@@ -4,7 +4,8 @@
     <nav class="site-main-nav" aria-label="主导航">
       <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>首页</a>
       <a data-nav-section="learn" href="{{ '/course-notes/' | relative_url }}"{% if page.url contains '/course-notes/' %} aria-current="page"{% endif %}>课程笔记</a>
-      <a data-nav-section="think" href="{{ '/personal-summary/' | relative_url }}"{% if page.url == '/personal-summary/' or page.path contains '_posts/' or page.layout == 'category' %} aria-current="page"{% endif %}>个人总结</a>
+      <a data-nav-section="think" href="{{ '/personal-summary/' | relative_url }}"{% if page.url == '/personal-summary/' or page.path contains '_posts/' or page.layout == 'category' %}{% unless page.url contains '/ai-medical/' %} aria-current="page"{% endunless %}{% endif %}>个人总结</a>
+      <a data-nav-section="medical" href="{{ '/ai-medical/' | relative_url }}"{% if page.url contains '/ai-medical/' %} aria-current="page"{% endif %}>AI医疗</a>
       <a data-nav-section="practice" href="{{ '/llm-interview/' | relative_url }}"{% if page.url contains '/llm-interview/' %} aria-current="page"{% endif %}>面试经验</a>
       <a data-nav-section="play" href="{{ '/games/' | relative_url }}"{% if page.section == 'games' %} aria-current="page"{% endif %}>小游戏</a>
       <a class="site-nav-secondary" href="{{ '/about/' | relative_url }}"{% if page.url == '/about/' %} aria-current="page"{% endif %}>关于</a>

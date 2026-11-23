@@ -27,6 +27,12 @@ tags: [实践]
 
 文章支持标准 Markdown、代码块、表格和 MathJax 公式。提交后 GitHub Pages 会自动构建。
 
+## AI 医疗栏目
+
+独立栏目入口：`/ai-medical/`。使用 Jekyll 文章分类 `AI医疗` 自动列出文章；文章固定放入 `_posts/`，在 front matter 中指定 `categories: [AI医疗]`，并建议显式设置 `permalink: /ai-medical/<slug>/`。共用文章布局、页内目录、RSS、首页最近更新和全站文章检索。主导航与首页「探索内容」均有入口。
+
+首篇文章：`/ai-medical/clinical-data-engine-doctor-agent/`，介绍 Clinical Data Engine 与 Doctor Agent 的解耦架构、接口边界、安全治理和落地路线。
+
 ## 课程笔记
 
 `/course-notes/` 按课程展示入口，每门课有独立的讲义目录与课程官网链接。课程信息及讲义索引统一维护在 `_data/courses.yml`，由 `_layouts/course.html` 渲染课程页。

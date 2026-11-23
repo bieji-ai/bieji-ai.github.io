@@ -16,6 +16,7 @@
 .site-main-nav [data-nav-section=think]{--nav-accent:#267769;--nav-soft:#eaf6f1}
 .site-main-nav [data-nav-section=practice]{--nav-accent:#916323;--nav-soft:#fcf4e4}
 .site-main-nav [data-nav-section=play]{--nav-accent:#8761aa;--nav-soft:#f5effa}
+.site-main-nav [data-nav-section=medical]{--nav-accent:#237e92;--nav-soft:#ebf7fa}
 .site-main-nav a[aria-current=page]{color:var(--nav-accent,#4859d6)}
 .site-nav-more{display:none;position:relative}
 .site-nav-more summary{cursor:pointer;list-style:none;color:#626d7d;font-size:12px;font-weight:550}
@@ -26,7 +27,7 @@
 .site-more-links a:hover{background:#f3f5fa}
 @media(max-width:760px){
   .site-nav-shell{gap:5px;padding:12px 0 4px}
-  .site-main-nav{width:100%;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;align-items:stretch}
+  .site-main-nav{width:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;align-items:stretch}
   .site-main-nav>a,.site-nav-more summary{display:flex;align-items:center;justify-content:center;min-height:44px;font-size:11px;line-height:1.4;border-radius:7px}
   .site-main-nav .site-nav-secondary{display:none}
   .site-main-nav>a[aria-current=page]{background:var(--nav-soft,#eef2ff)}
@@ -34,3 +35,5 @@
   .site-nav-more[open] summary,.site-nav-more .is-current{color:#4859d6;background:#eef2ff}
   .site-nav-more summary span{margin-left:3px}
 }
+
+@media(max-width:400px){.site-main-nav>a,.site-nav-more summary{font-size:10px;letter-spacing:-.35px}}
