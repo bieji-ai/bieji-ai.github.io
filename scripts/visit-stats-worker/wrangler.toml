@@ -1,0 +1,13 @@
+name = "straight-visit-stats"
+main = "./index.mjs"
+compatibility_date = "2026-11-23"
+workers_dev = true
+
+# From `npx wrangler d1 create straight-visit-stats`; replace before deploying.
+[[d1_databases]]
+binding = "DB"
+database_name = "straight-visit-stats"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[triggers]
+crons = ["0 20 * * *"]
